@@ -771,11 +771,8 @@ void WrappedID3D11DeviceContext::VSSetShaderResources(
   {
     if(ppShaderResourceViews[i] && m_State >= WRITING_CAPFRAME)
     {
-      ID3D11Resource *res = NULL;
-      ppShaderResourceViews[i]->GetResource(&res);
       MarkResourceReferenced(GetIDForResource(ppShaderResourceViews[i]), eFrameRef_Read);
-      MarkResourceReferenced(GetIDForResource(res), eFrameRef_Read);
-      SAFE_RELEASE(res);
+      MarkResourceReferenced(GetViewResourceResID(ppShaderResourceViews[i]), eFrameRef_Read);
     }
 
     SRVs[i] = UNWRAP(WrappedID3D11ShaderResourceView1, ppShaderResourceViews[i]);
@@ -1176,11 +1173,8 @@ void WrappedID3D11DeviceContext::HSSetShaderResources(
   {
     if(ppShaderResourceViews[i] && m_State >= WRITING_CAPFRAME)
     {
-      ID3D11Resource *res = NULL;
-      ppShaderResourceViews[i]->GetResource(&res);
       MarkResourceReferenced(GetIDForResource(ppShaderResourceViews[i]), eFrameRef_Read);
-      MarkResourceReferenced(GetIDForResource(res), eFrameRef_Read);
-      SAFE_RELEASE(res);
+      MarkResourceReferenced(GetViewResourceResID(ppShaderResourceViews[i]), eFrameRef_Read);
     }
 
     SRVs[i] = UNWRAP(WrappedID3D11ShaderResourceView1, ppShaderResourceViews[i]);
@@ -1580,11 +1574,8 @@ void WrappedID3D11DeviceContext::DSSetShaderResources(
   {
     if(ppShaderResourceViews[i] && m_State >= WRITING_CAPFRAME)
     {
-      ID3D11Resource *res = NULL;
-      ppShaderResourceViews[i]->GetResource(&res);
       MarkResourceReferenced(GetIDForResource(ppShaderResourceViews[i]), eFrameRef_Read);
-      MarkResourceReferenced(GetIDForResource(res), eFrameRef_Read);
-      SAFE_RELEASE(res);
+      MarkResourceReferenced(GetViewResourceResID(ppShaderResourceViews[i]), eFrameRef_Read);
     }
 
     SRVs[i] = UNWRAP(WrappedID3D11ShaderResourceView1, ppShaderResourceViews[i]);
@@ -1985,11 +1976,8 @@ void WrappedID3D11DeviceContext::GSSetShaderResources(
   {
     if(ppShaderResourceViews[i] && m_State >= WRITING_CAPFRAME)
     {
-      ID3D11Resource *res = NULL;
-      ppShaderResourceViews[i]->GetResource(&res);
       MarkResourceReferenced(GetIDForResource(ppShaderResourceViews[i]), eFrameRef_Read);
-      MarkResourceReferenced(GetIDForResource(res), eFrameRef_Read);
-      SAFE_RELEASE(res);
+      MarkResourceReferenced(GetViewResourceResID(ppShaderResourceViews[i]), eFrameRef_Read);
     }
 
     SRVs[i] = UNWRAP(WrappedID3D11ShaderResourceView1, ppShaderResourceViews[i]);
@@ -2461,6 +2449,7 @@ void WrappedID3D11DeviceContext::RSSetViewports(UINT NumViewports, const D3D11_V
 
   m_CurrentPipelineState->Change(m_CurrentPipelineState->RS.Viewports, pViewports, 0, NumViewports);
   m_CurrentPipelineState->Change(m_CurrentPipelineState->RS.NumViews, NumViewports);
+  m_CurrentPipelineState->CacheViewportPartial();
   m_pRealContext->RSSetViewports(NumViewports, pViewports);
   VerifyState();
 }
@@ -2503,6 +2492,7 @@ void WrappedID3D11DeviceContext::RSSetScissorRects(UINT NumRects, const D3D11_RE
 
   m_CurrentPipelineState->Change(m_CurrentPipelineState->RS.Scissors, pRects, 0, NumRects);
   m_CurrentPipelineState->Change(m_CurrentPipelineState->RS.NumScissors, NumRects);
+  m_CurrentPipelineState->CacheViewportPartial();
   m_pRealContext->RSSetScissorRects(NumRects, pRects);
   VerifyState();
 }
@@ -2549,6 +2539,7 @@ void WrappedID3D11DeviceContext::RSSetState(ID3D11RasterizerState *pRasterizerSt
   m_CurrentPipelineState->ChangeRefRead(m_CurrentPipelineState->RS.State, pRasterizerState);
   m_pRealContext->RSSetState(
       (ID3D11RasterizerState *)UNWRAP(WrappedID3D11RasterizerState2, pRasterizerState));
+  m_CurrentPipelineState->CacheViewportPartial();
 
   VerifyState();
 }
@@ -2793,11 +2784,8 @@ void WrappedID3D11DeviceContext::PSSetShaderResources(
   {
     if(ppShaderResourceViews[i] && m_State >= WRITING_CAPFRAME)
     {
-      ID3D11Resource *res = NULL;
-      ppShaderResourceViews[i]->GetResource(&res);
       MarkResourceReferenced(GetIDForResource(ppShaderResourceViews[i]), eFrameRef_Read);
-      MarkResourceReferenced(GetIDForResource(res), eFrameRef_Read);
-      SAFE_RELEASE(res);
+      MarkResourceReferenced(GetViewResourceResID(ppShaderResourceViews[i]), eFrameRef_Read);
     }
 
     SRVs[i] = UNWRAP(WrappedID3D11ShaderResourceView1, ppShaderResourceViews[i]);
@@ -3200,21 +3188,15 @@ void WrappedID3D11DeviceContext::OMSetRenderTargets(UINT NumViews,
     {
       if(ppRenderTargetViews && ppRenderTargetViews[i])
       {
-        ID3D11Resource *res = NULL;
-        ppRenderTargetViews[i]->GetResource(&res);
         MarkResourceReferenced(GetIDForResource(ppRenderTargetViews[i]), eFrameRef_Read);
-        MarkResourceReferenced(GetIDForResource(res), eFrameRef_Read);
-        SAFE_RELEASE(res);
+        MarkResourceReferenced(GetViewResourceResID(ppRenderTargetViews[i]), eFrameRef_Read);
       }
     }
 
     if(pDepthStencilView)
     {
-      ID3D11Resource *res = NULL;
-      pDepthStencilView->GetResource(&res);
       MarkResourceReferenced(GetIDForResource(pDepthStencilView), eFrameRef_Read);
-      MarkResourceReferenced(GetIDForResource(res), eFrameRef_Read);
-      SAFE_RELEASE(res);
+      MarkResourceReferenced(GetViewResourceResID(pDepthStencilView), eFrameRef_Read);
     }
   }
 
@@ -3228,16 +3210,13 @@ void WrappedID3D11DeviceContext::OMSetRenderTargets(UINT NumViews,
     {
       if(m_State >= WRITING)
       {
-        ID3D11Resource *res = NULL;
-        ppRenderTargetViews[i]->GetResource(&res);
         // technically this isn't dirty until the draw call, but let's be conservative
         // to avoid having to track "possibly" dirty resources.
         // Besides, it's unlikely an application will set an output then not draw to it
         if(m_State == WRITING_IDLE)
-          MarkDirtyResource(GetIDForResource(res));
+          MarkDirtyResource(GetViewResourceResID(ppRenderTargetViews[i]));
         else if(m_State == WRITING_CAPFRAME)
-          m_MissingTracks.insert(GetIDForResource(res));
-        SAFE_RELEASE(res);
+          m_MissingTracks.insert(GetViewResourceResID(ppRenderTargetViews[i]));
       }
 
       RTs[i] = UNWRAP(WrappedID3D11RenderTargetView1, ppRenderTargetViews[i]);
@@ -3246,15 +3225,13 @@ void WrappedID3D11DeviceContext::OMSetRenderTargets(UINT NumViews,
 
   if(pDepthStencilView && m_State >= WRITING)
   {
-    ID3D11Resource *res = NULL;
-    pDepthStencilView->GetResource(&res);
-
     if(m_State == WRITING_IDLE)
-      MarkDirtyResource(GetIDForResource(res));
+      MarkDirtyResource(GetViewResourceResID(pDepthStencilView));
     else if(m_State == WRITING_CAPFRAME)
-      m_MissingTracks.insert(GetIDForResource(res));
-    SAFE_RELEASE(res);
+      m_MissingTracks.insert(GetViewResourceResID(pDepthStencilView));
   }
+
+  m_CurrentPipelineState->CacheViewportPartial();
 
   m_pRealContext->OMSetRenderTargets(NumViews, RTs,
                                      UNWRAP(WrappedID3D11DepthStencilView, pDepthStencilView));
@@ -3442,21 +3419,15 @@ void WrappedID3D11DeviceContext::OMSetRenderTargetsAndUnorderedAccessViews(
       {
         if(ppRenderTargetViews && ppRenderTargetViews[i])
         {
-          ID3D11Resource *res = NULL;
-          ppRenderTargetViews[i]->GetResource(&res);
           MarkResourceReferenced(GetIDForResource(ppRenderTargetViews[i]), eFrameRef_Read);
-          MarkResourceReferenced(GetIDForResource(res), eFrameRef_Read);
-          SAFE_RELEASE(res);
+          MarkResourceReferenced(GetViewResourceResID(ppRenderTargetViews[i]), eFrameRef_Read);
         }
       }
 
       if(pDepthStencilView)
       {
-        ID3D11Resource *res = NULL;
-        pDepthStencilView->GetResource(&res);
         MarkResourceReferenced(GetIDForResource(pDepthStencilView), eFrameRef_Read);
-        MarkResourceReferenced(GetIDForResource(res), eFrameRef_Read);
-        SAFE_RELEASE(res);
+        MarkResourceReferenced(GetViewResourceResID(pDepthStencilView), eFrameRef_Read);
       }
     }
   }
@@ -3496,16 +3467,13 @@ void WrappedID3D11DeviceContext::OMSetRenderTargetsAndUnorderedAccessViews(
   {
     if(ppRenderTargetViews[i] && m_State >= WRITING)
     {
-      ID3D11Resource *res = NULL;
-      ppRenderTargetViews[i]->GetResource(&res);
       // technically this isn't dirty until the draw call, but let's be conservative
       // to avoid having to track "possibly" dirty resources.
       // Besides, it's unlikely an application will set an output then not draw to it
       if(m_State == WRITING_IDLE)
-        MarkDirtyResource(GetIDForResource(res));
+        MarkDirtyResource(GetViewResourceResID(ppRenderTargetViews[i]));
       else if(m_State == WRITING_CAPFRAME)
-        m_MissingTracks.insert(GetIDForResource(res));
-      SAFE_RELEASE(res);
+        m_MissingTracks.insert(GetViewResourceResID(ppRenderTargetViews[i]));
     }
 
     RTs[i] = UNWRAP(WrappedID3D11RenderTargetView1, ppRenderTargetViews[i]);
@@ -3515,13 +3483,10 @@ void WrappedID3D11DeviceContext::OMSetRenderTargetsAndUnorderedAccessViews(
   {
     if(ppUnorderedAccessViews[i] && m_State >= WRITING)
     {
-      ID3D11Resource *res = NULL;
-      ppUnorderedAccessViews[i]->GetResource(&res);
       if(m_State == WRITING_IDLE)
-        MarkDirtyResource(GetIDForResource(res));
+        MarkDirtyResource(GetViewResourceResID(ppUnorderedAccessViews[i]));
       else if(m_State == WRITING_CAPFRAME)
-        m_MissingTracks.insert(GetIDForResource(res));
-      SAFE_RELEASE(res);
+        m_MissingTracks.insert(GetViewResourceResID(ppUnorderedAccessViews[i]));
     }
 
     UAVs[i] = UNWRAP(WrappedID3D11UnorderedAccessView1, ppUnorderedAccessViews[i]);
@@ -3529,15 +3494,13 @@ void WrappedID3D11DeviceContext::OMSetRenderTargetsAndUnorderedAccessViews(
 
   if(pDepthStencilView && m_State >= WRITING)
   {
-    ID3D11Resource *res = NULL;
-    pDepthStencilView->GetResource(&res);
-
     if(m_State == WRITING_IDLE)
-      MarkDirtyResource(GetIDForResource(res));
+      MarkDirtyResource(GetViewResourceResID(pDepthStencilView));
     else if(m_State == WRITING_CAPFRAME)
-      m_MissingTracks.insert(GetIDForResource(res));
-    SAFE_RELEASE(res);
+      m_MissingTracks.insert(GetViewResourceResID(pDepthStencilView));
   }
+
+  m_CurrentPipelineState->CacheViewportPartial();
 
   m_pRealContext->OMSetRenderTargetsAndUnorderedAccessViews(
       NumRTVs, ppRenderTargetViews ? RTs : NULL,
@@ -4611,10 +4574,8 @@ void WrappedID3D11DeviceContext::CSSetShaderResources(
   {
     if(ppShaderResourceViews[i] && m_State >= WRITING_CAPFRAME)
     {
-      ID3D11Resource *res = NULL;
-      ppShaderResourceViews[i]->GetResource(&res);
-      MarkResourceReferenced(GetIDForResource(res), eFrameRef_Read);
-      SAFE_RELEASE(res);
+      MarkResourceReferenced(GetIDForResource(ppShaderResourceViews[i]), eFrameRef_Read);
+      MarkResourceReferenced(GetViewResourceResID(ppShaderResourceViews[i]), eFrameRef_Read);
     }
 
     SRVs[i] = UNWRAP(WrappedID3D11ShaderResourceView1, ppShaderResourceViews[i]);
@@ -4693,14 +4654,10 @@ void WrappedID3D11DeviceContext::CSSetUnorderedAccessViews(
   {
     if(ppUnorderedAccessViews[i] && m_State >= WRITING)
     {
-      ID3D11Resource *res = NULL;
-      ppUnorderedAccessViews[i]->GetResource(&res);
-
       if(m_State == WRITING_IDLE)
-        MarkDirtyResource(GetIDForResource(res));
+        MarkDirtyResource(GetViewResourceResID(ppUnorderedAccessViews[i]));
       else if(m_State == WRITING_CAPFRAME)
-        m_MissingTracks.insert(GetIDForResource(res));
-      SAFE_RELEASE(res);
+        m_MissingTracks.insert(GetViewResourceResID(ppUnorderedAccessViews[i]));
     }
 
     UAVs[i] = UNWRAP(WrappedID3D11UnorderedAccessView1, ppUnorderedAccessViews[i]);
@@ -6001,12 +5958,7 @@ void WrappedID3D11DeviceContext::CopyStructureCount(ID3D11Buffer *pDstBuffer,
 
     record->AddParent(srcRecord);
 
-    ID3D11Resource *res = NULL;
-    pSrcView->GetResource(&res);
-
-    MarkDirtyResource(GetIDForResource(pDstBuffer));
-
-    SAFE_RELEASE(res);
+    MarkDirtyResource(GetViewResourceResID(pSrcView));
   }
 
   m_pRealContext->CopyStructureCount(UNWRAP(WrappedID3D11Buffer, pDstBuffer), DstAlignedByteOffset,
@@ -6242,23 +6194,17 @@ void WrappedID3D11DeviceContext::GenerateMips(ID3D11ShaderResourceView *pShaderR
 
     m_ContextRecord->AddChunk(scope.Get());
 
-    ID3D11Resource *res = NULL;
-    pShaderResourceView->GetResource(&res);
+    ResourceId id = GetViewResourceResID(pShaderResourceView);
 
-    m_MissingTracks.insert(GetIDForResource(res));
+    m_MissingTracks.insert(id);
 
-    MarkResourceReferenced(GetIDForResource(res), eFrameRef_Read);
-    MarkResourceReferenced(GetIDForResource(res), eFrameRef_Write);
+    MarkResourceReferenced(id, eFrameRef_Read);
+    MarkResourceReferenced(id, eFrameRef_Write);
     MarkResourceReferenced(GetIDForResource(pShaderResourceView), eFrameRef_Read);
-    SAFE_RELEASE(res);
   }
   else if(m_State >= WRITING)
   {
-    ID3D11Resource *res = NULL;
-    pShaderResourceView->GetResource(&res);
-    ResourceId id = GetIDForResource(res);
-    MarkDirtyResource(id);
-    SAFE_RELEASE(res);
+    MarkDirtyResource(GetViewResourceResID(pShaderResourceView));
   }
 
   m_pRealContext->GenerateMips(UNWRAP(WrappedID3D11ShaderResourceView1, pShaderResourceView));
@@ -6412,12 +6358,7 @@ void WrappedID3D11DeviceContext::ClearRenderTargetView(ID3D11RenderTargetView *p
     m_pSerialiser->Serialise("context", m_ResourceID);
     Serialise_ClearRenderTargetView(pRenderTargetView, ColorRGBA);
 
-    ID3D11Resource *res = NULL;
-    pRenderTargetView->GetResource(&res);
-
-    m_MissingTracks.insert(GetIDForResource(res));
-
-    SAFE_RELEASE(res);
+    m_MissingTracks.insert(GetViewResourceResID(pRenderTargetView));
 
     m_ContextRecord->AddChunk(scope.Get());
   }
@@ -6427,10 +6368,7 @@ void WrappedID3D11DeviceContext::ClearRenderTargetView(ID3D11RenderTargetView *p
     m_pSerialiser->Serialise("context", m_ResourceID);
     Serialise_ClearRenderTargetView(pRenderTargetView, ColorRGBA);
 
-    ID3D11Resource *viewRes = NULL;
-    pRenderTargetView->GetResource(&viewRes);
-    ResourceId id = GetIDForResource(viewRes);
-    SAFE_RELEASE(viewRes);
+    ResourceId id = GetViewResourceResID(pRenderTargetView);
 
     D3D11ResourceRecord *record = m_pDevice->GetResourceManager()->GetResourceRecord(id);
     RDCASSERT(record);
@@ -6462,18 +6400,10 @@ void WrappedID3D11DeviceContext::ClearRenderTargetView(ID3D11RenderTargetView *p
     record->AddChunk(scope.Get());
   }
 
-  if(pRenderTargetView && m_State >= WRITING)
+  if(pRenderTargetView && m_State == WRITING_CAPFRAME)
   {
-    ID3D11Resource *res = NULL;
-    pRenderTargetView->GetResource(&res);
-
-    if(m_State == WRITING_CAPFRAME)
-    {
-      MarkResourceReferenced(GetIDForResource(res), eFrameRef_Write);
-      MarkResourceReferenced(GetIDForResource(pRenderTargetView), eFrameRef_Read);
-    }
-
-    SAFE_RELEASE(res);
+    MarkResourceReferenced(GetViewResourceResID(pRenderTargetView), eFrameRef_Write);
+    MarkResourceReferenced(GetIDForResource(pRenderTargetView), eFrameRef_Read);
   }
 }
 
@@ -6584,12 +6514,7 @@ void WrappedID3D11DeviceContext::ClearUnorderedAccessViewUint(
     m_pSerialiser->Serialise("context", m_ResourceID);
     Serialise_ClearUnorderedAccessViewUint(pUnorderedAccessView, Values);
 
-    ID3D11Resource *res = NULL;
-    pUnorderedAccessView->GetResource(&res);
-
-    m_MissingTracks.insert(GetIDForResource(res));
-
-    SAFE_RELEASE(res);
+    m_MissingTracks.insert(GetViewResourceResID(pUnorderedAccessView));
 
     m_ContextRecord->AddChunk(scope.Get());
   }
@@ -6599,8 +6524,8 @@ void WrappedID3D11DeviceContext::ClearUnorderedAccessViewUint(
     m_pSerialiser->Serialise("context", m_ResourceID);
     Serialise_ClearUnorderedAccessViewUint(pUnorderedAccessView, Values);
 
-    D3D11ResourceRecord *record =
-        m_pDevice->GetResourceManager()->GetResourceRecord(GetIDForResource(pUnorderedAccessView));
+    D3D11ResourceRecord *record = m_pDevice->GetResourceManager()->GetResourceRecord(
+        GetViewResourceResID(pUnorderedAccessView));
     RDCASSERT(record);
 
     m_pDevice->LockForChunkRemoval();
@@ -6630,18 +6555,10 @@ void WrappedID3D11DeviceContext::ClearUnorderedAccessViewUint(
     record->AddChunk(scope.Get());
   }
 
-  if(pUnorderedAccessView && m_State >= WRITING)
+  if(pUnorderedAccessView && m_State == WRITING_CAPFRAME)
   {
-    ID3D11Resource *res = NULL;
-    pUnorderedAccessView->GetResource(&res);
-
-    if(m_State == WRITING_CAPFRAME)
-    {
-      MarkResourceReferenced(GetIDForResource(res), eFrameRef_Write);
-      MarkResourceReferenced(GetIDForResource(pUnorderedAccessView), eFrameRef_Read);
-    }
-
-    SAFE_RELEASE(res);
+    MarkResourceReferenced(GetViewResourceResID(pUnorderedAccessView), eFrameRef_Write);
+    MarkResourceReferenced(GetIDForResource(pUnorderedAccessView), eFrameRef_Read);
   }
 
   m_pRealContext->ClearUnorderedAccessViewUint(
@@ -6754,12 +6671,7 @@ void WrappedID3D11DeviceContext::ClearUnorderedAccessViewFloat(
     m_pSerialiser->Serialise("context", m_ResourceID);
     Serialise_ClearUnorderedAccessViewFloat(pUnorderedAccessView, Values);
 
-    ID3D11Resource *res = NULL;
-    pUnorderedAccessView->GetResource(&res);
-
-    m_MissingTracks.insert(GetIDForResource(res));
-
-    SAFE_RELEASE(res);
+    m_MissingTracks.insert(GetViewResourceResID(pUnorderedAccessView));
 
     m_ContextRecord->AddChunk(scope.Get());
   }
@@ -6769,8 +6681,8 @@ void WrappedID3D11DeviceContext::ClearUnorderedAccessViewFloat(
     m_pSerialiser->Serialise("context", m_ResourceID);
     Serialise_ClearUnorderedAccessViewFloat(pUnorderedAccessView, Values);
 
-    D3D11ResourceRecord *record =
-        m_pDevice->GetResourceManager()->GetResourceRecord(GetIDForResource(pUnorderedAccessView));
+    D3D11ResourceRecord *record = m_pDevice->GetResourceManager()->GetResourceRecord(
+        GetViewResourceResID(pUnorderedAccessView));
     RDCASSERT(record);
 
     m_pDevice->LockForChunkRemoval();
@@ -6800,18 +6712,10 @@ void WrappedID3D11DeviceContext::ClearUnorderedAccessViewFloat(
     record->AddChunk(scope.Get());
   }
 
-  if(pUnorderedAccessView && m_State >= WRITING)
+  if(pUnorderedAccessView && m_State == WRITING_CAPFRAME)
   {
-    ID3D11Resource *res = NULL;
-    pUnorderedAccessView->GetResource(&res);
-
-    if(m_State == WRITING_CAPFRAME)
-    {
-      MarkResourceReferenced(GetIDForResource(res), eFrameRef_Write);
-      MarkResourceReferenced(GetIDForResource(pUnorderedAccessView), eFrameRef_Read);
-    }
-
-    SAFE_RELEASE(res);
+    MarkResourceReferenced(GetViewResourceResID(pUnorderedAccessView), eFrameRef_Write);
+    MarkResourceReferenced(GetIDForResource(pUnorderedAccessView), eFrameRef_Read);
   }
 
   m_pRealContext->ClearUnorderedAccessViewFloat(
@@ -6918,12 +6822,7 @@ void WrappedID3D11DeviceContext::ClearDepthStencilView(ID3D11DepthStencilView *p
     m_pSerialiser->Serialise("context", m_ResourceID);
     Serialise_ClearDepthStencilView(pDepthStencilView, ClearFlags, Depth, Stencil);
 
-    ID3D11Resource *res = NULL;
-    pDepthStencilView->GetResource(&res);
-
-    m_MissingTracks.insert(GetIDForResource(res));
-
-    SAFE_RELEASE(res);
+    m_MissingTracks.insert(GetViewResourceResID(pDepthStencilView));
 
     m_ContextRecord->AddChunk(scope.Get());
   }
@@ -6934,7 +6833,7 @@ void WrappedID3D11DeviceContext::ClearDepthStencilView(ID3D11DepthStencilView *p
     Serialise_ClearDepthStencilView(pDepthStencilView, ClearFlags, Depth, Stencil);
 
     D3D11ResourceRecord *record =
-        m_pDevice->GetResourceManager()->GetResourceRecord(GetIDForResource(pDepthStencilView));
+        m_pDevice->GetResourceManager()->GetResourceRecord(GetViewResourceResID(pDepthStencilView));
     RDCASSERT(record);
 
     m_pDevice->LockForChunkRemoval();
@@ -6964,18 +6863,10 @@ void WrappedID3D11DeviceContext::ClearDepthStencilView(ID3D11DepthStencilView *p
     record->AddChunk(scope.Get());
   }
 
-  if(pDepthStencilView && m_State >= WRITING)
+  if(pDepthStencilView && m_State == WRITING_CAPFRAME)
   {
-    ID3D11Resource *res = NULL;
-    pDepthStencilView->GetResource(&res);
-
-    if(m_State == WRITING_CAPFRAME)
-    {
-      MarkResourceReferenced(GetIDForResource(res), eFrameRef_Write);
-      MarkResourceReferenced(GetIDForResource(pDepthStencilView), eFrameRef_Read);
-    }
-
-    SAFE_RELEASE(res);
+    MarkResourceReferenced(GetViewResourceResID(pDepthStencilView), eFrameRef_Write);
+    MarkResourceReferenced(GetIDForResource(pDepthStencilView), eFrameRef_Read);
   }
 }
 
