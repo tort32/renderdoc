@@ -535,6 +535,7 @@ void WrappedOpenGL::BuildGLExtensions()
   m_GLExtensions.push_back("GL_ARB_vertex_type_10f_11f_11f_rev");
   m_GLExtensions.push_back("GL_ARB_vertex_type_2_10_10_10_rev");
   m_GLExtensions.push_back("GL_ARB_viewport_array");
+  m_GLExtensions.push_back("GL_EXT_abgr");
   m_GLExtensions.push_back("GL_EXT_bgra");
   m_GLExtensions.push_back("GL_EXT_blend_color");
   m_GLExtensions.push_back("GL_EXT_blend_equation_separate");
@@ -665,7 +666,6 @@ void WrappedOpenGL::BuildGLExtensions()
   * GL_ATI_texture_float
   * GL_ATI_texture_mirror_once
   * GL_EXT_422_pixels
-  * GL_EXT_abgr
   * GL_EXT_bindable_uniform
   * GL_EXT_blend_logic_op
   * GL_EXT_Cg_shader
